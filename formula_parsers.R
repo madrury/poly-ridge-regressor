@@ -43,6 +43,6 @@ parse_special_terms <- function(special_terms) {
   .return
 }
 
-.get_response_name <- function(formula) {
+get_response_name <- function(formula) {
     resp_nm <- as.character(attr(terms(formula), "variables")[[2]])
 }

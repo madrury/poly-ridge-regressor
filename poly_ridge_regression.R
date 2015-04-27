@@ -5,7 +5,7 @@ poly_ridge_regression <- function(formula, data, lambda=1) {
   obj <- structure(list(), class="poly.ridge.lm")
 
   obj$base_formula <- formula(get_nonspecial_terms(formula))
-  obj$response_names <- get_response_name(formula)
+  obj$response_name <- get_response_name(formula)
   obj$poly_terms <- parse_special_terms(get_special_terms(formula))
 
   obj$train_matrix <- .poly_ridge_regression_design_matrix(
@@ -17,8 +17,24 @@ poly_ridge_regression <- function(formula, data, lambda=1) {
   )
 
   obj$lm <- lm.fit(obj$train_matrix, obj$train_response)
+  obj$lm$terms <- terms(formula)
+  class(obj$lm) <- "lm"
 
   obj
+}
+
+summary.poly.ridge.lm <- function(obj) {
+  summary(obj$lm)
+}
+
+predict.poly.ridge.lm <- function(obj, newdata) {
+  n_row <- nrow(newdata)
+  dm <- .poly_ridge_regression_design_matrix(
+    obj$base_formula, obj$poly_terms, newdata, lambda=1
+  )
+  dm <- dm[1:n_row, ]
+  coefs <- obj$lm$coefficients
+  dm %*% coefs
 }
 
 # Make a design matrix for polynomial ridge regression.
